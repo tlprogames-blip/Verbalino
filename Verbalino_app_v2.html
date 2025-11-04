@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapportino Intervento Cashmatic</title>
+    
+    <!-- Carico PRIMA Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- E POI configuro i colori personalizzati -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#004a99',
+                        'brand-blue-dark': '#003b7a',
+                        'brand-green': '#84c441',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        /* Stile per il canvas della firma (ora blu) */
+        .signature-canvas {
+            border: 2px dashed #004a99; /* Cashmatic Blue */
+            border-radius: 0.375rem; /* rounded-md */
+            cursor: crosshair;
+            touch-action: none; /* Disabilita lo scroll durante la firma su mobile */
+        }
+
+        /* Stile per la modale */
+        .modal-backdrop {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-panel {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <!-- Modulo Principale (ora nascosto all'avvio) -->
+    <div id="mainFormContainer" class="max-w-4xl mx-auto bg-white p-6 md:p-10 rounded-lg shadow-2xl hidden">
+        <header class="mb-8 border-b pb-4">
+            <!-- LOGO INSERITO -->
+            <img src="https://media.licdn.com/dms/image/v2/D4D3DAQEsFzk-rfZ1kA/image-scale_191_1128/image-scale_191_1128/0/1659347807506/cashmatic_s_r_l__cover?e=2147483647&v=beta&t=_a54S3ocYo1yoOedGAH4ZXtO0N5wN_Do9o0NuEPR8kE" alt="Cashmatic Logo" class="mx-auto h-20 w-auto">
+            <!-- TITOLO TESTUALE RIMOSSO -->
+            <h2 class="text-2xl font-semibold text-gray-800 text-center mt-4">Rapportino di Intervento</h2>
+            <p class="text-center text-gray-500 mt-2">Compila tutti i campi richiesti.</p>
+        </header>
+
+        <form id="reportForm" novalidate>
+            <!-- Dati Cliente e Manutentore (MODIFICATO) -->
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                <!-- Colonna Manutentore -->
+                <div class="space-y-4 p-4 border border-brand-blue/30 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold text-brand-blue">Dati Installatore/Manutentore</h3>
+                    <div>
+                        <label for="manutentore_ragione_sociale" class="block text-sm font-medium text-gray-700">Ragione Sociale</label>
+                        <input type="text" name="manutentore_ragione_sociale" id="manutentore_ragione_sociale" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                    </div>
+                    <!-- CAMPI NOME E COGNOME MANUTENTORE RIMOSSI -->
+                    <!-- INDIRIZZO MANUTENTORE MODIFICATO -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="manutentore_citta" class="block text-sm font-medium text-gray-700">Città Manutentore</label>
+                            <input type="text" name="manutentore_citta" id="manutentore_citta" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="manutentore_indirizzo_via" class="block text-sm font-medium text-gray-700">Indirizzo Manutentore</label>
+                            <input type="text" name="manutentore_indirizzo_via" id="manutentore_indirizzo_via" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                        </div>
+                    </div>
+                    <!-- FINE MODIFICA -->
+                    <div>
+                        <label for="manutentore_piva" class="block text-sm font-medium text-gray-700">P. IVA Manutentore</label>
+                        <input type="text" name="manutentore_piva" id="manutentore_piva" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                    </div>
+                </div>
+                <!-- Colonna Cliente Finale -->
+                <div class="space-y-4 p-4 border border-brand-blue/30 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold text-brand-blue">Dati Cliente Finale</h3>
+                    <div>
+                        <label for="cliente_ragione_sociale" class="block text-sm font-medium text-gray-700">Ragione Sociale</label>
+                        <input type="text" name="cliente_ragione_sociale" id="cliente_ragione_sociale" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                    </div>
+                     <!-- CAMPI NOME E COGNOME REFERENTE RIMOSSI -->
+                    <!-- INDIRIZZO CLIENTE MODIFICATO -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="cliente_citta" class="block text-sm font-medium text-gray-700">Città Punto Vendita</label>
+                            <input type="text" name="cliente_citta" id="cliente_citta" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="cliente_indirizzo_via" class="block text-sm font-medium text-gray-700">Indirizzo Punto Vendita</label>
+                            <input type="text" name="cliente_indirizzo_via" id="cliente_indirizzo_via" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                        </div>
+                    </div>
+                    <!-- FINE MODIFICA -->
+                    <div>
+                        <label for="cliente_piva" class="block text-sm font-medium text-gray-700">P. IVA / CF Cliente</label>
+                        <input type="text" name="cliente_piva" id="cliente_piva" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dati Temporali (Bordi aggiornati) -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div>
+                    <label for="data" class="block text-sm font-medium text-gray-700">Data Intervento</label>
+                    <input type="date" name="data" id="data" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+                <div>
+                    <label for="ora_arrivo" class="block text-sm font-medium text-gray-700">Ora Arrivo</label>
+                    <input type="time" name="ora_arrivo" id="ora_arrivo" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+                <div>
+                    <label for="ora_termine" class="block text-sm font-medium text-gray-700">Ora Termine Lavori</label>
+                    <input type="time" name="ora_termine" id="ora_termine" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+            </section>
+
+            <!-- NUOVA SEZIONE SERIALI -->
+            <section class="mb-6 p-4 border border-brand-blue/30 rounded-lg shadow-sm space-y-4">
+                <h3 class="text-lg font-semibold text-brand-blue">Seriali Prodotti</h3>
+                <p class="text-sm text-gray-500">Inserire il seriale del prodotto. Il primo campo è obbligatorio.</p>
+                <div>
+                    <label for="seriale_1" class="block text-sm font-medium text-gray-700">Seriale 1 (Obbligatorio)</label>
+                    <input type="text" name="seriale_1" id="seriale_1" required
+                           placeholder="202x xx xxx xx xxxxx" maxlength="20"
+                           class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+                 <div>
+                    <label for="seriale_2" class="block text-sm font-medium text-gray-700">Seriale 2 (Opzionale)</label>
+                    <input type="text" name="seriale_2" id="seriale_2"
+                           placeholder="202x xx xxx xx xxxxx" maxlength="20"
+                           class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+                 <div>
+                    <label for="seriale_3" class="block text-sm font-medium text-gray-700">Seriale 3 (Opzionale)</label>
+                    <input type="text" name="seriale_3" id="seriale_3"
+                           placeholder="202x xx xxx xx xxxxx" maxlength="20"
+                           class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+            </section>
+            <!-- FINE NUOVA SEZIONE SERIALI -->
+
+            <!-- Tipo Intervento (Colori aggiornati) -->
+            <section class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tipo Intervento</label>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input id="check_installazione" name="tipo_intervento" type="checkbox" value="Installazione" class="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue">
+                        <label for="check_installazione" class="ml-2 block text-sm text-gray-900">Installazione</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="check_formazione" name="tipo_intervento" type="checkbox" value="Formazione Post Installazione" class="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue">
+                        <label for="check_formazione" class="ml-2 block text-sm text-gray-900">Formazione Post Installazione</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="check_affiancamento" name="tipo_intervento" type="checkbox" value="Affiancamento" class="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue">
+                        <label for="check_affiancamento" class="ml-2 block text-sm text-gray-900">Affiancamento</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="check_riparazione" name="tipo_intervento" type="checkbox" value="Riparazione" class="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue">
+                        <label for="check_riparazione" class="ml-2 block text-sm text-gray-900">Riparazione</label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Note (Bordi aggiornati) -->
+            <section class="mb-6">
+                <label for="note" class="block text-sm font-medium text-gray-700">Note Intervento</label>
+                <textarea id="note" name="note" rows="4" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm"></textarea>
+            </section>
+
+            <!-- Caricamento Immagini (Colori aggiornati) -->
+            <section class="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <label for="immagini" class="block text-sm font-medium text-gray-700">Immagini (Obbligatorie, min 1, max 3)</label>
+                <input type="file" name="immagini" id="immagini" accept="image/*" multiple class="mt-2 block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-md file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-brand-blue/10 file:text-brand-blue-dark
+                    hover:file:bg-brand-blue/20
+                ">
+                <p class="text-xs text-gray-500 mt-2">Puoi selezionare più file. L'elenco si accumulerà fino a 3 immagini.</p>
+                
+                <!-- Anteprime Immagini -->
+                <div id="previewContainer" class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- Le anteprime verranno inserite qui -->
+                </div>
+                <!-- Pulsante per svuotare l'elenco -->
+                <div class="mt-4">
+                    <button type="button" id="clearImagesBtn" class="w-full justify-center rounded-md border border-gray-300 bg-white px-6 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                        Svuota Elenco Immagini
+                    </button>
+                </div>
+            </section>
+
+            <!-- NUOVA SEZIONE DISCLAIMER -->
+            <section class="mb-6">
+                <p class="text-xs italic text-gray-600 text-center">
+                    Con la sottoscrizione del presente documento/verbale di fine lavori, il Committente dichiara di aver verificato l'opera installata in ogni sua parte e di attestarne la corretta e completa esecuzione a regola d'arte, come da accordi e specifiche tecniche, sollevando l'Appaltatore da ogni responsabilità per vizi o difformità riconoscibili al momento della verifica. L'accettazione dell'opera senza riserve esonera l'Appaltatore dalla garanzia per i vizi e le difformità che erano noti al Committente o che avrebbero potuto essere facilmente riconosciuti al momento del collaudo/verifica dell'installazione. Eventuali difetti o vizi non apparenti dovranno essere denunciati per iscritto all'Appaltatore, a pena di decadenza, entro e non oltre otto giorni dalla loro scoperta.
+                </p>
+            </section>
+
+            <!-- Sezione Firme (Colori aggiornati) -->
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <div class="mb-2">
+                        <label for="cliente_firma_nome" class="block text-sm font-medium text-gray-700">Nome e Cognome (Cliente)</label>
+                        <input type="text" name="cliente_firma_nome" id="cliente_firma_nome" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                    </div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Firma Cliente</label>
+                    <canvas id="clientSigCanvas" class="signature-canvas w-full h-64 bg-brand-blue/10"></canvas>
+                    <button type="button" id="clearClientSig" class="mt-2 w-full text-sm text-gray-600 hover:text-red-500">Pulisci Firma Cliente</button>
+                </div>
+                <div>
+                    <div class="mb-2">
+                        <label for="installer_firma_nome" class="block text-sm font-medium text-gray-700">Nome e Cognome (Installatore/manutentore)</label>
+                        <input type="text" name="installer_firma_nome" id="installer_firma_nome" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                    </div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Firma Installatore/manutentore</label>
+                    <canvas id="installerSigCanvas" class="signature-canvas w-full h-64 bg-brand-blue/10"></canvas>
+                    <button type="button" id="clearInstallerSig" class="mt-2 w-full text-sm text-gray-600 hover:text-red-500">Pulisci Firma Installatore</button>
+                </div>
+            </section>
+
+            <!-- Pulsante Invio (Colori aggiornati) -->
+            <div class="text-center">
+                <button type="submit" class="w-full md:w-auto inline-flex justify-center rounded-lg border border-transparent bg-brand-blue py-3 px-12 text-base font-medium text-white shadow-sm hover:bg-brand-blue-dark focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2">
+                    Genera Report e Prepara Email
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modale per Messaggi di Errore/Successo (z-10) -->
+    <div id="modal" class="relative z-10 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Sfondo Overlay -->
+        <div id="modalBackdrop" class="fixed inset-0 bg-gray-500 bg-opacity-75 modal-backdrop opacity-0"></div>
+
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <!-- Pannello Modale -->
+                <div id="modalPanel" class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl modal-panel opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95 sm:my-8 sm:w-full sm:max-w-lg">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div id="modalIcon" class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <!-- Icona (errore o successo) verrà inserita qui -->
+                            </div>
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                <h3 class="text-lg font-medium leading-6 text-gray-900" id="modalTitle">Titolo Modale</h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-500" id="modalMessage">Messaggio modale.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <button type="button" id="modalConfirmBtn" class="hidden sm:ml-3 inline-flex w-full justify-center rounded-md border border-transparent bg-brand-blue px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-brand-blue-dark focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 sm:w-auto sm:text-sm">
+                            <!-- Testo impostato da JS -->
+                        </button>
+                        <button type="button" id="modalCloseBtn" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                            Chiudi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale Disclaimer Compatibilità (NUOVO, z-20 per stare sopra) -->
+    <div id="disclaimerModal" class="relative z-20" aria-labelledby="disclaimer-title" role="dialog" aria-modal="true">
+        <!-- Sfondo Overlay -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <!-- Pannello Modale -->
+                <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <!-- Icona Avviso -->
+                                <svg class="h-6 w-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
+                                </svg>
+                            </div>
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                <h3 class="text-lg font-medium leading-6 text-gray-900" id="disclaimer-title">Attenzione</h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-500">DA UTILIZZARSI CON PC WINDOWS O DISPOSITIVO ANDROID</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <button type="button" id="acceptDisclaimerBtn" class="inline-flex w-full justify-center rounded-md border border-transparent bg-brand-blue px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-brand-blue-dark focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
+                            Accetta e Continua
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Canvas nascosto per la generazione del report finale -->
+    <canvas id="reportCanvas" style="display: none;"></canvas>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Riferimenti Disclaimer (NUOVI)
+            const mainFormContainer = document.getElementById('mainFormContainer');
+            const disclaimerModal = document.getElementById('disclaimerModal');
+            const acceptDisclaimerBtn = document.getElementById('acceptDisclaimerBtn');
+            
+            // Riferimenti principali del form e modale (spostati qui per visibilità)
+            const form = document.getElementById('reportForm');
+            const immaginiInput = document.getElementById('immagini');
+            const previewContainer = document.getElementById('previewContainer');
+            const clearImagesBtn = document.getElementById('clearImagesBtn');
+            
+            // Elementi Modale
+            const modal = document.getElementById('modal');
+            const modalBackdrop = document.getElementById('modalBackdrop');
+            const modalPanel = document.getElementById('modalPanel');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalCloseBtn = document.getElementById('modalCloseBtn');
+            const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+
+            // Flags
+            let hasClientSigned = false;
+            let hasInstallerSigned = false;
+            let uploadedFiles = []; // Array per accumulare i file
+            let signaturesInitialized = false; // Flag per evitare inizializzazioni multiple
+
+            // --- PRECOMPILAZIONE DATA E ORA ---
+            const dataInput = document.getElementById('data');
+            const oraArrivoInput = document.getElementById('ora_arrivo');
+            const oraTermineInput = document.getElementById('ora_termine');
+            
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0'); // Mesi sono 0-indexed
+            const dd = String(today.getDate()).padStart(2, '0');
+            const todayString = `${yyyy}-${mm}-${dd}`; // Formato YYYY-MM-DD per input[type="date"]
+            
+            const hh = String(today.getHours()).padStart(2, '0');
+            const min = String(today.getMinutes()).padStart(2, '0');
+            const timeString = `${hh}:${min}`; // Formato HH:MM per input[type="time"]
+            
+            dataInput.value = todayString;
+            // oraArrivoInput.value = timeString; // Precompilo anche ora arrivo <-- RIMOSSO
+            oraTermineInput.value = timeString; // Precompilo ora termine
+            // --- FINE PRECOMPILAZIONE ---
+
+            // --- NUOVA LOGICA "BACKDOOR" PER PRECOMPILAZIONE ---
+            const manutentoreRSInput = document.getElementById('manutentore_ragione_sociale');
+            const manutentoreCittaInput = document.getElementById('manutentore_citta');
+            const manutentoreIndirizzoInput = document.getElementById('manutentore_indirizzo_via');
+            const manutentorePivaInput = document.getElementById('manutentore_piva'); // Aggiunto questo
+
+            manutentoreRSInput.addEventListener('input', (e) => {
+                // Uso toLowerCase() per renderlo non sensibile a maiuscole/minuscole
+                if (e.target.value.toLowerCase() === 'xxx') {
+                    e.target.value = 'Cashmatic S.p.a';
+                    manutentoreCittaInput.value = 'Dogana - Repubblica di San Marino';
+                    manutentoreIndirizzoInput.value = 'Via Fondo Ausa, 28';
+                    manutentorePivaInput.value = 'COE SM27525'; // Aggiunto questo
+                }
+            });
+            // --- FINE LOGICA "BACKDOOR" ---
+
+            // --- Logica Modale (Colori aggiornati) ---
+            const iconError = `<svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>`;
+            const iconSuccess = `<svg class="h-6 w-6 text-brand-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+
+            function showModal(title, message, isError = true, confirmConfig = null) {
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                modalIcon.innerHTML = isError ? iconError : iconSuccess;
+                modalIcon.className = `mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10 ${isError ? 'bg-red-100' : 'bg-brand-green/20'}`;
+                
+                // Logica pulsanti
+                if (confirmConfig) {
+                    modalConfirmBtn.classList.remove('hidden');
+                    modalConfirmBtn.textContent = confirmConfig.text;
+                    modalConfirmBtn.onclick = () => { // Sovrascrive listener
+                        hideModal();
+                        confirmConfig.action();
+                    };
+                    modalCloseBtn.textContent = "Annulla";
+                } else {
+                    modalConfirmBtn.classList.add('hidden');
+                    modalConfirmBtn.onclick = null; // Rimuove listener
+                    modalCloseBtn.textContent = "Chiudi";
+                }
+
+                modal.classList.remove('hidden');
+                modalBackdrop.classList.remove('opacity-0');
+                modalBackdrop.classList.add('opacity-100');
+                modalPanel.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+                modalPanel.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
+            }
+
+            function hideModal() {
+                modalBackdrop.classList.remove('opacity-100');
+                modalBackdrop.classList.add('opacity-0');
+                modalPanel.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
+                modalPanel.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    // Resetta i pulsanti
+                    modalConfirmBtn.classList.add('hidden');
+                    modalConfirmBtn.onclick = null;
+                    modalCloseBtn.textContent = "Chiudi";
+                }, 300);
+            }
+
+            modalCloseBtn.addEventListener('click', hideModal);
+            modalBackdrop.addEventListener('click', hideModal);
+
+            // --- INIZIO LOGICA CANVAS FIRMA (SPOSTATA) ---
+            
+            // Imposta alta risoluzione per canvas (Retina display)
+            function setupCanvas(canvas, ctx) {
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvas.getBoundingClientRect();
+                
+                // Controllo CRITICO: se le dimensioni sono 0, non fare nulla (o logga errore)
+                if (rect.width === 0 || rect.height === 0) {
+                    console.error("Setup canvas fallito: dimensioni 0. Il form è visibile?");
+                    return;
+                }
+                
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.scale(dpr, dpr);
+                
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+            }
+
+            /**
+             * @param {HTMLCanvasElement} canvas
+             * @param {CanvasRenderingContext2D} ctx
+             * @param {HTMLButtonElement} clearBtn
+             * @param {function(boolean):void} setSignedFlag - Funzione per impostare il flag 'firmato'.
+             */
+            function setupSignaturePad(canvas, ctx, clearBtn, setSignedFlag) {
+                let drawing = false;
+
+                function getPos(e) {
+                    const rect = canvas.getBoundingClientRect();
+                    const isTouch = e.type.startsWith('touch');
+                    const event = isTouch ? e.touches[0] : e;
+                    
+                    // Calcolo corretto delle coordinate relative al canvas
+                    return {
+                        x: event.clientX - rect.left,
+                        y: event.clientY - rect.top
+                    };
+                }
+                
+                function startDrawing(e) {
+                    e.preventDefault();
+                    drawing = true;
+                    setSignedFlag(true);
+                    const pos = getPos(e);
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x, pos.y);
+                }
+
+                function draw(e) {
+                    e.preventDefault();
+                    if (!drawing) return;
+                    const pos = getPos(e);
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                }
+
+                function stopDrawing() {
+                    drawing = false;
+                }
+
+                // Eventi Mouse (Logica Click-per-Disegnare / Toggle)
+                canvas.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    
+                    if (drawing) {
+                        drawing = false; // Interrompi disegno
+                    } else {
+                        // Inizia disegno
+                        drawing = true;
+                        setSignedFlag(true);
+                        const pos = getPos(e);
+                        ctx.beginPath();
+                        ctx.moveTo(pos.x, pos.y);
+                    }
+                });
+                canvas.addEventListener('mousemove', draw);
+                canvas.addEventListener('mouseout', stopDrawing);
+
+                // Eventi Touch (Logica Tieni-per-Disegnare - invariata)
+                canvas.addEventListener('touchstart', startDrawing);
+                canvas.addEventListener('touchmove', draw);
+                canvas.addEventListener('touchend', stopDrawing);
+                canvas.addEventListener('touchcancel', stopDrawing);
+
+                // Pulsante Pulisci
+                clearBtn.addEventListener('click', () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    setSignedFlag(false);
+                });
+            }
+
+            // Funzione per raggruppare l'inizializzazione delle firme
+            function initializeSignaturePads() {
+                if (signaturesInitialized) return; // Esegui solo una volta
+
+                // Ottieni i riferimenti ai canvas ORA
+                const clientCanvas = document.getElementById('clientSigCanvas');
+                const clientCtx = clientCanvas.getContext('2d');
+                const clearClientSigBtn = document.getElementById('clearClientSig');
+
+                const installerCanvas = document.getElementById('installerSigCanvas');
+                const installerCtx = installerCanvas.getContext('2d');
+                const clearInstallerSigBtn = document.getElementById('clearInstallerSig');
+
+                // Inizializza entrambi i canvas
+                setupCanvas(clientCanvas, clientCtx);
+                setupCanvas(installerCanvas, installerCtx);
+                setupSignaturePad(clientCanvas, clientCtx, clearClientSigBtn, (signed) => hasClientSigned = signed);
+                setupSignaturePad(installerCanvas, installerCtx, clearInstallerSigBtn, (signed) => hasInstallerSigned = signed);
+                
+                signaturesInitialized = true;
+            }
+            // --- FINE LOGICA CANVAS FIRMA ---
+
+
+            // --- Logica Disclaimer (MODIFICATA) ---
+            acceptDisclaimerBtn.addEventListener('click', () => {
+                disclaimerModal.classList.add('hidden'); // Nasconde il disclaimer
+                mainFormContainer.classList.remove('hidden'); // Mostra il form
+                
+                // ESEGUI L'INIZIALIZZAZIONE DEI CANVAS ORA CHE SONO VISIBILI
+                initializeSignaturePads();
+            });
+
+
+            // --- Logica Caricamento Immagini ---
+            immaginiInput.addEventListener('change', (e) => {
+                const files = e.target.files;
+                if (files.length === 0) return;
+
+                if (uploadedFiles.length + files.length > 3) {
+                    showModal("Troppi File", "Puoi caricare un massimo di 3 immagini in totale.");
+                    e.target.value = ''; 
+                    return;
+                }
+                
+                Array.from(files).forEach(file => {
+                    uploadedFiles.push(file);
+
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = document.createElement('img');
+                        img.src = event.target.result;
+                        img.alt = file.name;
+                        img.className = 'w-full h-32 object-cover rounded-md shadow-md';
+                        previewContainer.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                });
+
+                e.target.value = '';
+            });
+
+            // Logica per il pulsante "Svuota Elenco"
+            clearImagesBtn.addEventListener('click', () => {
+                uploadedFiles = [];
+                previewContainer.innerHTML = '';
+                immaginiInput.value = ''; // Resetta anche l'input file
+            });
+
+            // --- Funzione per il wrapping del testo sul canvas ---
+            function wrapText(context, text, x, y, maxWidth, lineHeight) {
+                if (!text) return y; // Gestisce note vuote
+                const words = text.split(' ');
+                let line = '';
+                let testY = y;
+
+                for(let n = 0; n < words.length; n++) {
+                    let testLine = line + words[n] + ' ';
+                    let metrics = context.measureText(testLine);
+                    let testWidth = metrics.width;
+                    if (testWidth > maxWidth && n > 0) {
+                        context.fillText(line, x, testY);
+                        line = words[n] + ' ';
+                        testY += lineHeight;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                context.fillText(line, x, testY);
+                return testY + lineHeight; // Ritorna la new posizione Y
+            }
+
+            /**
+             * Disegna un'immagine con 'object-fit: cover' su un canvas.
+             */
+            function drawCoverImage(ctx, img, x, y, w, h) {
+                const imgRatio = img.width / img.height; 
+                const boxRatio = w / h;
+                
+                let sw, sh, sx, sy;
+
+                if (imgRatio > boxRatio) {
+                    sh = img.height;
+                    sw = img.height * boxRatio;
+                    sx = (img.width - sw) / 2;
+                    sy = 0;
+                } else {
+                    sw = img.width;
+                    sh = img.width / boxRatio;
+                    sx = 0;
+                    sy = (img.height - sh) / 2;
+                }
+
+                ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+            }
+
+            // --- Funzione Principale per Generare il Report ---
+            async function generateAndDownloadReportImage(formData, imageFiles) {
+                const reportCanvas = document.getElementById('reportCanvas');
+                const ctx = reportCanvas.getContext('2d');
+
+                // Helper per caricare il logo (richiede crossOrigin)
+                const loadLogoFromURL = (src) => {
+                    return new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.crossOrigin = "Anonymous"; // !! IMPORTANTE per CDN
+                        img.onload = () => resolve(img);
+                        img.onerror = (err) => {
+                            console.error("Failed to load logo from URL:", src, err);
+                            reject(new Error("Logo load failed"));
+                        };
+                        img.src = src;
+                    });
+                };
+
+                // Helper per caricare immagini da File (per le anteprime)
+                const loadImage = (file) => {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const img = new Image();
+                            img.onload = () => resolve(img);
+                            img.onerror = reject;
+                            img.src = e.target.result;
+                        };
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+                };
+
+
+                // Dimensioni (Aumentato per far spazio ai nuovi campi + disclaimer)
+                const canvasWidth = 842;
+                const canvasHeight = 1500; // Altezza base, si espanderà dinamicamente
+                
+                reportCanvas.width = canvasWidth;
+                reportCanvas.height = canvasHeight;
+
+                // Sfondo bianco
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+                // Impostazioni font
+                const padding = 40;
+                const contentWidth = canvasWidth - (padding * 2);
+                let yPos = padding;
+
+                // --- DISEGNA LOGO CASHMATIC ---
+                try {
+                    const logoImg = await loadLogoFromURL("https://media.licdn.com/dms/image/v2/D4D3DAQEsFzk-rfZ1kA/image-scale_191_1128/image-scale_191_1128/0/1659347807506/cashmatic_s_r_l__cover?e=2147483647&v=beta&t=_a54S3ocYo1yoOedGAH4ZXtO0N5wN_Do9o0NuEPR8kE");
+                    const logoHeight = 80; // Altezza desiderata
+                    const logoWidth = (logoImg.width * logoHeight) / logoImg.height;
+                    const logoX = (canvasWidth - logoWidth) / 2;
+                    ctx.drawImage(logoImg, logoX, yPos, logoWidth, logoHeight);
+                    yPos += logoHeight + 10; // Spazio dopo il logo
+                } catch (error) {
+                    console.warn("Caricamento logo fallito, uso il testo come fallback.");
+                    // Fallback a testo
+                    ctx.fillStyle = '#004a99';
+                    ctx.font = 'bold 36px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Cashmatic s.p.a.', canvasWidth / 2, yPos + 30);
+                    yPos += 50;
+                }
+                // --- FINE LOGO ---
+                
+                ctx.fillStyle = '#1f2937';
+                ctx.font = 'bold 24px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Rapportino di Intervento', canvasWidth / 2, yPos + 20);
+                yPos += 70;
+                // --- FINE SEZIONE TITOLO ---
+
+                // Funzione helper per disegnare sezioni
+                ctx.textAlign = 'left';
+                function drawSection(label, value) {
+                    ctx.font = 'bold 14px Inter, sans-serif';
+                    ctx.fillStyle = '#4b5563'; // gray-600
+                    ctx.fillText(label, padding, yPos);
+                    
+                    ctx.font = 'normal 16px Inter, sans-serif';
+                    ctx.fillStyle = '#1f2937'; // gray-800
+                    ctx.fillText(value || 'N/D', padding + 300, yPos); // Modificato da 180 a 300 per dare più spazio alle etichette
+                    yPos += 30;
+                }
+ 
+                // Funzione helper per disegnare linee
+                function drawLine() {
+                    yPos += 10;
+                    ctx.strokeStyle = '#e5e7eb'; // gray-200
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(padding, yPos);
+                    ctx.lineTo(canvasWidth - padding, yPos);
+                    ctx.stroke();
+                    yPos += 25;
+                }
+ 
+                // Dati (MODIFICATO)
+                drawSection('Ragione Sociale Installatore/Manutentore:', formData.get('manutentore_ragione_sociale')); // Etichetta modificata
+                // Nome Manutentore rimosso
+                
+                // COMBINA I CAMPI INDIRIZZO MANUTENTORE
+                const manutentoreCitta = formData.get('manutentore_citta') || '';
+                const manutentoreVia = formData.get('manutentore_indirizzo_via') || '';
+                drawSection('Indirizzo Man.:', `${manutentoreCitta}${manutentoreCitta && manutentoreVia ? ', ' : ''}${manutentoreVia}`);
+                
+                drawSection('P. IVA Man.:', formData.get('manutentore_piva'));
+                yPos += 10; // Spazio extra
+                drawSection('Ragione Sociale o Insegna:', formData.get('cliente_ragione_sociale')); // Etichetta modificata
+                // Referente Cliente rimosso
+ 
+                // COMBINA I CAMPI INDIRIZZO CLIENTE
+                const clienteCitta = formData.get('cliente_citta') || '';
+                const clienteVia = formData.get('cliente_indirizzo_via') || '';
+                drawSection('Ind. Punto Vendita:', `${clienteCitta}${clienteCitta && clienteVia ? ', ' : ''}${clienteVia}`);
+
+                drawSection('P. IVA/CF Cliente:', formData.get('cliente_piva'));
+                drawLine();
+
+                // Riformatto la data per il canvas
+                const dateStringRaw = formData.get('data'); // e.g., "2025-11-04"
+                const parts = dateStringRaw.split('-'); // ["2025", "11", "04"]
+                const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`; // "04/11/2025"
+                
+                drawSection('Data Intervento:', formattedDate); // Uso la data formattata
+                drawSection('Ora Arrivo:', formData.get('ora_arrivo'));
+                drawSection('Ora Termine:', formData.get('ora_termine'));
+                drawLine();
+
+                // --- AGGIUNGO SERIALI SU CANVAS ---
+                ctx.font = 'bold 14px Inter, sans-serif';
+                ctx.fillStyle = '#4b5563'; // gray-600
+                ctx.fillText('Seriali Prodotti:', padding, yPos);
+                yPos += 25;
+
+                ctx.font = 'normal 16px Inter, sans-serif';
+                ctx.fillStyle = '#1f2937'; // gray-800
+                
+                // Seriale 1 (obbligatorio)
+                ctx.fillText(`1: ${formData.get('seriale_1')}`, padding + 20, yPos);
+                yPos += 25;
+                
+                // Seriali opzionali
+                const seriale_2 = formData.get('seriale_2');
+                if (seriale_2) {
+                    ctx.fillText(`2: ${seriale_2}`, padding + 20, yPos);
+                    yPos += 25;
+                }
+                const seriale_3 = formData.get('seriale_3');
+                if (seriale_3) {
+                    ctx.fillText(`3: ${seriale_3}`, padding + 20, yPos);
+                    yPos += 25;
+                }
+                
+                // Se non ci sono seriali 2 e 3, aggiungo meno spazio
+                if (!seriale_2 && !seriale_3) {
+                    yPos -= 15; // Rimuovo un po' di spazio per compattare
+                } else if (!seriale_3) {
+                     yPos -= 5; // Rimuovo un po' di spazio
+                }
+
+                drawLine();
+                // --- FINE SERIALI SU CANVAS ---
+
+                // Tipi Intervento
+                ctx.font = 'bold 14px Inter, sans-serif';
+                ctx.fillStyle = '#4b5563'; // gray-600
+                ctx.fillText('Tipo Intervento:', padding, yPos);
+                
+                ctx.font = 'normal 16px Inter, sans-serif';
+                ctx.fillStyle = '#1f2937'; // gray-800
+                const tipi = formData.getAll('tipo_intervento');
+                if (tipi.length > 0) {
+                    ctx.fillText(tipi.join(', '), padding + 180, yPos);
+                } else {
+                    ctx.fillText('Nessuno selezionato', padding + 180, yPos);
+                }
+                yPos += 30;
+                drawLine();
+
+                // Note
+                ctx.font = 'bold 14px Inter, sans-serif';
+                ctx.fillStyle = '#4b5563'; // gray-600
+                ctx.fillText('Note:', padding, yPos);
+                
+                ctx.font = 'normal 14px Inter, sans-serif';
+                ctx.fillStyle = '#1f2937'; // gray-800
+                yPos = wrapText(ctx, formData.get('note'), padding, yPos + 25, contentWidth, 20);
+                yPos += 15; // Spazio dopo le note
+                drawLine();
+
+                // Titolo Sezione Immagini
+                ctx.font = 'bold 14px Inter, sans-serif';
+                ctx.fillStyle = '#4b5563';
+                ctx.fillText('Immagini Allegate:', padding, yPos);
+                yPos += 25;
+
+                // Disegna le immagini allegate (fino a 3)
+                const imgBoxWidth = (contentWidth - (15 * 2)) / 3; // 3 immagini per riga
+                const imgBoxHeight = imgBoxWidth * 0.75; // Proporzione 4:3
+                const imgPadding = 15;
+                let imgX = padding;
+
+                for (let i = 0; i < imageFiles.length; i++) {
+                    const file = imageFiles[i];
+                    const img = await loadImage(file);
+                    
+                    ctx.fillStyle = '#f0f0f0'; // Sfondo box immagine
+                    ctx.fillRect(imgX, yPos, imgBoxWidth, imgBoxHeight);
+                    
+                    drawCoverImage(ctx, img, imgX, yPos, imgBoxWidth, imgBoxHeight);
+                    
+                    imgX += imgBoxWidth + imgPadding;
+                    if ((i + 1) % 3 === 0 && i < imageFiles.length - 1) {
+                        imgX = padding;
+                        yPos += imgBoxHeight + imgPadding;
+                    }
+                }
+                
+                yPos += imgBoxHeight + 30;
+                drawLine();
+
+                // --- AGGIUNGI DISCLAIMER SU CANVAS ---
+                const disclaimerText = "Con la sottoscrizione del presente documento/verbale di fine lavori, il Committente dichiara di aver verificato l'opera installata in ogni sua parte e di attestarne la corretta e completa esecuzione a regola d'arte, come da accordi e specifiche tecniche, sollevando l'Appaltatore da ogni responsabilità per vizi o difformità riconoscibili al momento della verifica. L'accettazione dell'opera senza riserve esonera l'Appaltatore dalla garanzia per i vizi e le difformità che erano noti al Committente o che avrebbero potuto essere facilmente riconosciuti al momento del collaudo/verifica dell'installazione. Eventuali difetti o vizi non apparenti dovranno essere denunciati per iscritto all'Appaltatore, a pena di decadenza, entro e non oltre otto giorni dalla loro scoperta.";
+                
+                ctx.font = 'italic 10px Inter, sans-serif';
+                ctx.fillStyle = '#4b5563'; // gray-600
+                yPos = wrapText(ctx, disclaimerText, padding, yPos, contentWidth, 14); // 14px line height
+                yPos += 25; // Spazio dopo il disclaimer
+                // --- FINE DISCLAIMER SU CANVAS ---
+
+                // Firme (MODIFICATO)
+                const clientCanvas = document.getElementById('clientSigCanvas');
+                const installerCanvas = document.getElementById('installerSigCanvas');
+
+                const sigWidth = (contentWidth / 2) - 30;
+                const sigHeight = 160;
+
+                // Nomi sopra le firme
+                ctx.font = 'normal 14px Inter, sans-serif';
+                ctx.fillStyle = '#1f2937';
+                ctx.fillText(formData.get('cliente_firma_nome') || 'N/D', padding, yPos);
+                ctx.fillText(formData.get('installer_firma_nome') || 'N/D', padding + sigWidth + 60, yPos);
+                yPos += 20; // Spazio per il nome
+
+                // Etichette "Firma"
+                ctx.font = 'bold 14px Inter, sans-serif';
+                ctx.fillStyle = '#4b5563';
+                ctx.fillText('Firma Cliente', padding, yPos);
+                ctx.fillText('Firma Installatore/manutentore', padding + sigWidth + 60, yPos);
+                yPos += 15;
+
+                // Box firme
+                ctx.fillStyle = '#EFF6FF'; // blue-50 
+                ctx.fillRect(padding, yPos, sigWidth, sigHeight);
+                ctx.fillRect(padding + sigWidth + 60, yPos, sigWidth, sigHeight);
+
+                // Disegno firme
+                ctx.drawImage(clientCanvas, 0, 0, clientCanvas.width, clientCanvas.height, padding, yPos, sigWidth, sigHeight);
+                ctx.drawImage(installerCanvas, 0, 0, installerCanvas.width, installerCanvas.height, padding + sigWidth + 60, yPos, sigWidth, sigHeight);
+
+                // Ridimensiona il canvas finale per adattarlo al contenuto
+                const finalHeight = yPos + sigHeight + padding;
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = canvasWidth;
+                finalCanvas.height = finalHeight;
+                const finalCtx = finalCanvas.getContext('2d');
+                
+                finalCtx.drawImage(reportCanvas, 0, 0);
+
+                // Crea e scarica l'immagine finale in JPEG (MODIFICATO NOME FILE)
+                const dataURL = finalCanvas.toDataURL('image/jpeg', 0.9);
+                
+                // --- Logica Nome File (NUOVA) ---
+                const clienteNome = formData.get('cliente_ragione_sociale').replace(/\s+/g, '_');
+                const concessionarioNome = formData.get('manutentore_ragione_sociale').replace(/\s+/g, '_');
+                
+                // const dateString = formData.get('data'); // "YYYY-MM-DD" <-- RIMOSSO (non serve, 'parts' esiste già)
+                // const parts = dateString.split('-'); // ["YYYY", "MM", "DD"] <-- RIMOSSO (Errore: 'parts' già dichiarato)
+                const year = parts[0].substring(2); // "YY" (Usa 'parts' dalla riga 721)
+                const month = parts[1]; // "MM" (Usa 'parts' dalla riga 721)
+                const day = parts[2]; // "DD" (Usa 'parts' dalla riga 721)
+                const formattedDateForFile = `${day}_${month}_${year}`; // "DD_MM_YY" <-- RINOMINATO
+
+                const fileName = `${clienteNome}_${concessionarioNome}_${formattedDateForFile}.jpeg`; // <-- AGGIORNATO
+                // --- Fine Logica Nome File ---
+
+                const link = document.createElement('a');
+                link.download = fileName;
+                link.href = dataURL;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            // --- Gestione Invio Form ---
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Validazione (MODIFICATA)
+                const formData = new FormData(form);
+                const manutentore_rs = formData.get('manutentore_ragione_sociale');
+                const cliente_rs = formData.get('cliente_ragione_sociale');
+                const dataRaw = formData.get('data'); // Rinominato in dataRaw
+                const seriale_1 = formData.get('seriale_1'); // NUOVO
+                const tipiIntervento = formData.getAll('tipo_intervento');
+                const clienteFirmaNome = formData.get('cliente_firma_nome');
+                const installerFirmaNome = formData.get('installer_firma_nome');
+ 
+                let errorMessage = "";
+                // La validazione controlla solo i campi 'required'
+                if (!manutentore_rs || !cliente_rs || !dataRaw || !formData.get('ora_arrivo') || !formData.get('ora_termine') || !seriale_1) { // Uso dataRaw
+                    errorMessage = "Compila tutti i campi (Ragione Sociale, data, orari, Seriale 1).";
+                }
+                else if (!clienteFirmaNome || !installerFirmaNome) {
+                    errorMessage = "Compila i campi 'Nome e Cognome' nelle sezioni firma.";
+                }
+                else if (!hasClientSigned) errorMessage = "Manca la firma del cliente.";
+                else if (!hasInstallerSigned) errorMessage = "Manca la firma dell'installatore.";
+                else if (tipiIntervento.length === 0) errorMessage = "Seleziona almeno un tipo di intervento.";
+                else if (uploadedFiles.length === 0) errorMessage = "Devi allegare almeno 1 immagine."; // Controlla l'array
+                else if (uploadedFiles.length > 3) errorMessage = "Puoi allegare un massimo di 3 immagini."; // Controlla l'array
+
+                if (errorMessage) {
+                    showModal("Dati Mancanti", errorMessage);
+                    return;
+                }
+
+                // --- MODIFICA FLUSSO ---
+                const executeGenerationAndEmail = async () => {
+                    let generated = false;
+                    try {
+                        await generateAndDownloadReportImage(formData, uploadedFiles);
+                        generated = true;
+                    } catch (err) {
+                        console.error("Errore generazione immagine:", err);
+                        showModal("Errore", "Impossibile generare l'immagine del report. Dettagli in console.");
+                        return;
+                    }
+
+                    if (generated) {
+                        // Prendo tutti i campi per l'email (MODIFICATO)
+                        // const manutentoreNome = formData.get('manutentore_nome'); // RIMOSSO
+                        // const manutentoreCognome = formData.get('manutentore_cognome'); // RIMOSSO
+                        const manutentoreCitta = formData.get('manutentore_citta');
+                        const manutentoreVia = formData.get('manutentore_indirizzo_via');
+                        const manutentorePiva = formData.get('manutentore_piva');
+                        
+                        // const clienteNome = formData.get('cliente_nome'); // RIMOSSO
+                        // const clienteCognome = formData.get('cliente_cognome'); // RIMOSSO
+                        const clienteCitta = formData.get('cliente_citta');
+                        const clienteVia = formData.get('cliente_indirizzo_via');
+                        const clientePiva = formData.get('cliente_piva');
+
+                        // Riformatto la data per l'email
+                        const parts = dataRaw.split('-'); // ["2025", "11", "04"]
+                        const dataFormattataEmail = `${parts[2]}/${parts[1]}/${parts[0]}`; // "04/11/2025"
+
+                        const emailTarget = "tiziano.lanzano@cashmatic.it";
+                        const subject = `Rapportino Intervento: ${cliente_rs} - ${dataFormattataEmail}`; // Uso data formattata
+                        
+                        // Corpo email (MODIFICATO)
+                        let body = "In allegato il rapportino di intervento (file JPEG).\n\n";
+                        body += "--- RIEPILOGO DATI ---\n";
+                        body += `Ragione Sociale Installatore/Manutentore: ${manutentore_rs}\n`; // Etichetta modificata
+                        // body += `Nome Manutentore: ...`; // RIMOSSO
+                        
+                        const manutentoreIndirizzoCompleto = `${(manutentoreCitta || '')}${(manutentoreCitta && manutentoreVia) ? ', ' : ''}${(manutentoreVia || '')}`;
+                        body += `Indirizzo Man.: ${manutentoreIndirizzoCompleto || 'N/D'}\n`;
+                        body += `P. IVA Man.: ${manutentorePiva || 'N/D'}\n\n`;
+                        
+                        body += `Ragione Sociale o Insegna: ${cliente_rs}\n`; // Etichetta modificata
+                        // body += `Referente Cliente: ...`; // RIMOSSO
+                        
+                        const clienteIndirizzoCompleto = `${(clienteCitta || '')}${(clienteCitta && clienteVia) ? ', ' : ''}${(clienteVia || '')}`;
+                        body += `Ind. Punto Vendita: ${clienteIndirizzoCompleto || 'N/D'}\n`;
+                        body += `P. IVA/CF Cliente: ${clientePiva || 'N/D'}\n\n`;
+                        
+                        body += `Data: ${dataFormattataEmail}\n`; // Uso data formattata
+                        body += `Ora Arrivo: ${formData.get('ora_arrivo')}\n`;
+                        body += `Ora Termine: ${formData.get('ora_termine')}\n`;
+                        
+                        // AGGIUNGO SERIALI ALL'EMAIL
+                        body += `Seriale 1: ${seriale_1}\n`;
+                        const seriale_2 = formData.get('seriale_2');
+                        if (seriale_2) body += `Seriale 2: ${seriale_2}\n`;
+                        const seriale_3 = formData.get('seriale_3');
+                        if (seriale_3) body += `Seriale 3: ${seriale_3}\n`;
+                        
+                        body += `Tipo Intervento: ${tipiIntervento.join(', ')}\n`;
+                        body += `Note: ${formData.get('note') || 'Nessuna'}\n\n`;
+                        body += `Firmato da (Cliente): ${clienteFirmaNome}\n`;
+                        body += `Firmato da (Installatore/manutentore): ${installerFirmaNome}\n`;
+                        body += "\n--- FINE RIEPILOGO ---";
+
+                        window.location.href = `mailto:${emailTarget}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    }
+                };
+                
+                showModal(
+                    "Report Pronto", 
+                    "Il rapportino è valido. Clicca il pulsante qui sotto per scaricare il file JPEG e preparare l'email.", 
+                    false, // false = icona successo
+                    {
+                        text: "PREMERE QUI PER DOWNLOAD E PREPARARE L'EMAIL",
+                        action: executeGenerationAndEmail
+                    }
+                );
+            });
+
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
