@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapportino Intervento Cashmatic</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#004a99',
+                        'brand-blue-dark': '#003b7a',
+                        'brand-green': '#84c441',
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .signature-canvas {
+            border: 2px dashed #004a99;
+            border-radius: 0.375rem;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        .modal-backdrop { transition: opacity 0.3s ease-in-out; }
+        .modal-panel { transition: all 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <!-- Modulo Principale (nascosto all'avvio) -->
+    <div id="mainFormContainer" class="max-w-4xl mx-auto bg-white p-6 md:p-10 rounded-lg shadow-2xl hidden" style="display:none">
+        <header class="mb-8 border-b pb-4">
+            <img src="https://media.licdn.com/dms/image/v2/D4D3DAQEsFzk-rfZ1kA/image-scale_191_1128/image-scale_191_1128/0/1659347807506/cashmatic_s_r_l__cover?e=2147483647&v=beta&t=_a54S3ocYo1yoOedGAH4ZXtO0N5wN_Do9o0NuEPR8kE" alt="Cashmatic Logo" class="mx-auto h-20 w-auto">
+            <h2 class="text-2xl font-semibold text-gray-800 text-center mt-4">Rapportino di Intervento</h2>
+            <p class="text-center text-gray-500 mt-2">Compila tutti i campi richiesti.</p>
+        </header>
+
+        <form id="reportForm" novalidate>
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                <div class="space-y-4 p-4 border border-brand-blue/30 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold text-brand-blue">Dati Installatore/Manutentore</h3>
+                    <div>
+                        <label for="manutentore_ragione_sociale" class="block text-sm font-medium text-gray-700">Ragione Sociale</label>
+                        <input type="text" name="manutentore_ragione_sociale" id="manutentore_ragione_sociale" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="manutentore_citta" class="block text-sm font-medium text-gray-700">Città Manutentore</label>
+                            <input type="text" name="manutentore_citta" id="manutentore_citta" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="manutentore_indirizzo_via" class="block text-sm font-medium text-gray-700">Indirizzo Manutentore</label>
+                            <input type="text" name="manutentore_indirizzo_via" id="manutentore_indirizzo_via" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="manutentore_piva" class="block text-sm font-medium text-gray-700">P. IVA Manutentore</label>
+                        <input type="text" name="manutentore_piva" id="manutentore_piva" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                    </div>
+                </div>
+                <div class="space-y-4 p-4 border border-brand-blue/30 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold text-brand-blue">Dati Cliente Finale</h3>
+                    <div>
+                        <label for="cliente_ragione_sociale" class="block text-sm font-medium text-gray-700">Ragione Sociale</label>
+                        <input type="text" name="cliente_ragione_sociale" id="cliente_ragione_sociale" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="cliente_citta" class="block text-sm font-medium text-gray-700">Città Punto Vendita</label>
+                            <input type="text" name="cliente_citta" id="cliente_citta" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="cliente_indirizzo_via" class="block text-sm font-medium text-gray-700">Indirizzo Punto Vendita</label>
+                            <input type="text" name="cliente_indirizzo_via" id="cliente_indirizzo_via" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="cliente_piva" class="block text-sm font-medium text-gray-700">P. IVA / CF Cliente</label>
+                        <input type="text" name="cliente_piva" id="cliente_piva" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div>
+                    <label for="data" class="block text-sm font-medium text-gray-700">Data Intervento</label>
+                    <input type="date" name="data" id="data" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+                <div>
+                    <label for="ora_arrivo" class="block text-sm font-medium text-gray-700">Ora Arrivo</label>
+                    <input type="time" name="ora_arrivo" id="ora_arrivo" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+                <div>
+                    <label for="ora_termine" class="block text-sm font-medium text-gray-700">Ora Termine Lavori</label>
+                    <input type="time" name="ora_termine" id="ora_termine" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+            </section>
+
+            <section class="mb-6 p-4 border border-brand-blue/30 rounded-lg shadow-sm space-y-4">
+                <h3 class="text-lg font-semibold text-brand-blue">Seriali Prodotti</h3>
+                <p class="text-sm text-gray-500">Il primo campo è obbligatorio.</p>
+                <div>
+                    <label for="seriale_1" class="block text-sm font-medium text-gray-700">Seriale 1 (Obbligatorio)</label>
+                    <input type="text" name="seriale_1" id="seriale_1" required placeholder="202x xx xxx xx xxxxx" maxlength="20" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+                <div>
+                    <label for="seriale_2" class="block text-sm font-medium text-gray-700">Seriale 2 (Opzionale)</label>
+                    <input type="text" name="seriale_2" id="seriale_2" placeholder="202x xx xxx xx xxxxx" maxlength="20" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+                <div>
+                    <label for="seriale_3" class="block text-sm font-medium text-gray-700">Seriale 3 (Opzionale)</label>
+                    <input type="text" name="seriale_3" id="seriale_3" placeholder="202x xx xxx xx xxxxx" maxlength="20" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+                <div>
+                    <label for="seriale_4" class="block text-sm font-medium text-gray-700">Seriale 4 (Opzionale)</label>
+                    <input type="text" name="seriale_4" id="seriale_4" placeholder="202x xx xxx xx xxxxx" maxlength="20" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+                <div>
+                    <label for="seriale_5" class="block text-sm font-medium text-gray-700">Seriale 5 (Opzionale)</label>
+                    <input type="text" name="seriale_5" id="seriale_5" placeholder="202x xx xxx xx xxxxx" maxlength="20" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                </div>
+            </section>
+
+            <section class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tipo Intervento</label>
+                <div class="space-y-2">
+                    <div class="flex items-center"><input id="check_installazione" name="tipo_intervento" type="checkbox" value="Installazione" class="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"><label for="check_installazione" class="ml-2 block text-sm text-gray-900">Installazione</label></div>
+                    <div class="flex items-center"><input id="check_formazione" name="tipo_intervento" type="checkbox" value="Formazione Post Installazione" class="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"><label for="check_formazione" class="ml-2 block text-sm text-gray-900">Formazione Post Installazione</label></div>
+                    <div class="flex items-center"><input id="check_affiancamento" name="tipo_intervento" type="checkbox" value="Affiancamento" class="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"><label for="check_affiancamento" class="ml-2 block text-sm text-gray-900">Affiancamento</label></div>
+                    <div class="flex items-center"><input id="check_riparazione" name="tipo_intervento" type="checkbox" value="Riparazione" class="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"><label for="check_riparazione" class="ml-2 block text-sm text-gray-900">Riparazione</label></div>
+                </div>
+            </section>
+
+            <section class="mb-6">
+                <label for="note" class="block text-sm font-medium text-gray-700">Note Intervento</label>
+                <textarea id="note" name="note" rows="4" class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm"></textarea>
+            </section>
+
+            <section id="sectionImmagini" class="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <label for="immagini" class="block text-sm font-medium text-gray-700">Immagini (Obbligatorie, min 1, max 3)</label>
+                <input type="file" name="immagini" id="immagini" accept="image/*" multiple class="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-blue/10 file:text-brand-blue-dark hover:file:bg-brand-blue/20">
+                <p class="text-xs text-gray-500 mt-2">Puoi selezionare più file. L'elenco si accumulerà fino a 3 immagini.</p>
+                <div id="previewContainer" class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+                <div class="mt-4">
+                    <button type="button" id="clearImagesBtn" class="w-full justify-center rounded-md border border-gray-300 bg-white px-6 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50">Svuota Elenco Immagini</button>
+                </div>
+            </section>
+
+            <section class="mb-6">
+                <p class="text-xs italic text-gray-600 text-center">
+                    Con la sottoscrizione del presente documento/verbale di fine lavori, il Committente dichiara di aver verificato l'opera installata in ogni sua parte e di attestarne la corretta e completa esecuzione a regola d'arte, come da accordi e specifiche tecniche, sollevando l'Appaltatore da ogni responsabilità per vizi o difformità riconoscibili al momento della verifica. L'accettazione dell'opera senza riserve esonera l'Appaltatore dalla garanzia per i vizi e le difformità che erano noti al Committente o che avrebbero potuto essere facilmente riconosciuti al momento del collaudo/verifica dell'installazione. Eventuali difetti o vizi non apparenti dovranno essere denunciati per iscritto all'Appaltatore, a pena di decadenza, entro e non oltre otto giorni dalla loro scoperta.
+                </p>
+            </section>
+
+            <section id="sectionFirme" class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <div class="mb-2">
+                        <label for="cliente_firma_nome" class="block text-sm font-medium text-gray-700">Nome e Cognome (Cliente)</label>
+                        <input type="text" name="cliente_firma_nome" id="cliente_firma_nome" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                    </div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Firma Cliente</label>
+                    <canvas id="clientSigCanvas" class="signature-canvas w-full h-64 bg-brand-blue/10"></canvas>
+                    <button type="button" id="clearClientSig" class="mt-2 w-full text-sm text-gray-600 hover:text-red-500">Pulisci Firma Cliente</button>
+                </div>
+                <div>
+                    <div class="mb-2">
+                        <label for="installer_firma_nome" class="block text-sm font-medium text-gray-700">Nome e Cognome (Installatore/manutentore)</label>
+                        <input type="text" name="installer_firma_nome" id="installer_firma_nome" required class="mt-1 block w-full rounded-md border-brand-blue/50 border-2 shadow-sm focus:border-brand-blue focus:ring-brand-blue sm:text-sm">
+                    </div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Firma Installatore/manutentore</label>
+                    <canvas id="installerSigCanvas" class="signature-canvas w-full h-64 bg-brand-blue/10"></canvas>
+                    <button type="button" id="clearInstallerSig" class="mt-2 w-full text-sm text-gray-600 hover:text-red-500">Pulisci Firma Installatore</button>
+                </div>
+            </section>
+
+            <div class="text-center">
+                <button type="submit" class="w-full md:w-auto inline-flex justify-center rounded-lg border border-transparent bg-brand-blue py-3 px-12 text-base font-medium text-white shadow-sm hover:bg-brand-blue-dark focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2">
+                    Genera Report e Prepara Email
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modale Messaggi -->
+    <div id="modal" class="relative z-10 hidden" role="dialog" aria-modal="true">
+        <div id="modalBackdrop" class="fixed inset-0 bg-gray-500 bg-opacity-75 modal-backdrop opacity-0"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div id="modalPanel" class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl modal-panel opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95 sm:my-8 sm:w-full sm:max-w-lg">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div id="modalIcon" class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"></div>
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                <h3 class="text-lg font-medium leading-6 text-gray-900" id="modalTitle"></h3>
+                                <div class="mt-2"><div class="text-sm text-gray-500" id="modalMessage"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <button type="button" id="modalConfirmBtn" class="hidden sm:ml-3 inline-flex w-full justify-center rounded-md border border-transparent bg-brand-blue px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-brand-blue-dark sm:w-auto sm:text-sm"></button>
+                        <button type="button" id="modalCloseBtn" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Chiudi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale Avvio / Blocco iOS -->
+    <div id="disclaimerModal" class="relative z-20" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div id="disclaimerIconBox" class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10"></div>
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                <h3 class="text-lg font-medium leading-6 text-gray-900" id="disclaimerTitle">Attenzione</h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-500" id="disclaimerMessage">DA UTILIZZARSI CON <strong>PC WINDOWS</strong> O DISPOSITIVO <strong>ANDROID</strong>.<br><br>⚠️ Su <strong>iPhone e iPad</strong> il corretto funzionamento <strong>non è garantito</strong>: le funzioni di firma digitale e generazione PDF potrebbero non funzionare correttamente.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6" id="disclaimerFooter">
+                        <button type="button" id="acceptDisclaimerBtn" class="inline-flex w-full justify-center rounded-md border border-transparent bg-brand-blue px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-brand-blue-dark sm:ml-3 sm:w-auto sm:text-sm">
+                            Accetta e Continua
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── Strategia WHITELIST: permetti SOLO Windows e Android ──────
+        // Più affidabile del rilevare iOS: Windows e Android sono sempre
+        // chiaramente identificabili nel userAgent, iOS/macOS no.
+        function isAllowedPlatform() {
+            const ua = navigator.userAgent || '';
+            if (/Windows/i.test(ua))  return true;   // PC Windows ✓
+            if (/Android/i.test(ua))  return true;   // Android    ✓
+            return false; // tutto il resto (iOS, macOS, Linux, ecc.) → bloccato
+        }
+        const runningOnIOS = !isAllowedPlatform(); // "iOS" = qualsiasi cosa non permessa
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const mainFormContainer   = document.getElementById('mainFormContainer');
+            const disclaimerModal     = document.getElementById('disclaimerModal');
+            const acceptDisclaimerBtn = document.getElementById('acceptDisclaimerBtn');
+            const disclaimerMessage   = document.getElementById('disclaimerMessage');
+            const disclaimerTitle     = document.getElementById('disclaimerTitle');
+            const disclaimerIconBox   = document.getElementById('disclaimerIconBox');
+            const disclaimerFooter    = document.getElementById('disclaimerFooter');
+            const form                = document.getElementById('reportForm');
+            const immaginiInput       = document.getElementById('immagini');
+            const previewContainer    = document.getElementById('previewContainer');
+            const clearImagesBtn      = document.getElementById('clearImagesBtn');
+            const modal               = document.getElementById('modal');
+            const modalBackdrop       = document.getElementById('modalBackdrop');
+            const modalPanel          = document.getElementById('modalPanel');
+            const modalIcon           = document.getElementById('modalIcon');
+            const modalTitle          = document.getElementById('modalTitle');
+            const modalMessage        = document.getElementById('modalMessage');
+            const modalCloseBtn       = document.getElementById('modalCloseBtn');
+            const modalConfirmBtn     = document.getElementById('modalConfirmBtn');
+
+            let hasClientSigned       = false;
+            let hasInstallerSigned    = false;
+            let uploadedFiles         = [];
+            let signaturesInitialized = false;
+
+            // ═══════════════════════════════════════════════════════════
+            // BLOCCO TOTALE iOS — pulsante disabilitato, nessuna via d'uscita
+            // ═══════════════════════════════════════════════════════════
+            if (runningOnIOS) {
+                disclaimerTitle.textContent = "Dispositivo Non Supportato";
+                disclaimerIconBox.className = "mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10";
+                disclaimerIconBox.innerHTML = `<svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"/></svg>`;
+                disclaimerMessage.innerHTML =
+                    "<strong>iPhone e iPad non sono supportati.</strong><br><br>" +
+                    "Questa applicazione richiede un <strong>PC Windows</strong> o un dispositivo <strong>Android</strong>.<br><br>" +
+                    "Le funzionalità di firma digitale e generazione PDF non sono compatibili con iOS.";
+
+                // Sostituisce il footer con un pulsante disabilitato e bloccato
+                disclaimerFooter.innerHTML = `
+                    <button type="button" disabled
+                        class="w-full inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-red-400 px-4 py-2 text-base font-medium text-white cursor-not-allowed opacity-80 sm:w-auto sm:text-sm">
+                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                        </svg>
+                        Utilizzo di iOS rilevato — accesso bloccato
+                    </button>`;
+
+                // Blocca ogni tentativo di click sull'intera modale per sicurezza
+                document.getElementById('disclaimerModal').addEventListener('click', e => e.stopPropagation(), true);
+
+                return; // interrompe tutto lo script, il form non viene mai inizializzato
+            }
+
+            // Icona avviso normale (non iOS)
+            disclaimerIconBox.className = "mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10";
+            disclaimerIconBox.innerHTML = `<svg class="h-6 w-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"/></svg>`;
+
+            // ─── Precompilazione data/ora ──────────────────────────────
+            const today = new Date();
+            document.getElementById('data').value =
+                `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+            document.getElementById('ora_termine').value =
+                `${String(today.getHours()).padStart(2,'0')}:${String(today.getMinutes()).padStart(2,'0')}`;
+
+            // ─── Backdoor "xxx" ────────────────────────────────────────
+            document.getElementById('manutentore_ragione_sociale').addEventListener('input', e => {
+                if (e.target.value.toLowerCase() === 'xxx') {
+                    e.target.value = 'Cashmatic S.p.a';
+                    document.getElementById('manutentore_citta').value = 'Dogana - Repubblica di San Marino';
+                    document.getElementById('manutentore_indirizzo_via').value = 'Via Fondo Ausa, 28';
+                    document.getElementById('manutentore_piva').value = 'COE SM27525';
+                }
+            });
+
+            // ─── Modale helper ─────────────────────────────────────────
+            const SVG_ERR  = `<svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"/></svg>`;
+            const SVG_OK   = `<svg class="h-6 w-6 text-brand-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+
+            function showModal(title, message, isError = true, confirmConfig = null) {
+                modalTitle.textContent  = title;
+                modalMessage.innerHTML  = message.replace(/\n/g, '<br>');
+                modalIcon.innerHTML     = isError ? SVG_ERR : SVG_OK;
+                modalIcon.className     = `mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10 ${isError ? 'bg-red-100' : 'bg-brand-green/20'}`;
+                if (confirmConfig) {
+                    modalConfirmBtn.classList.remove('hidden');
+                    modalConfirmBtn.textContent = confirmConfig.text;
+                    modalConfirmBtn.onclick = () => { hideModal(); confirmConfig.action(); };
+                    modalCloseBtn.textContent = "Annulla";
+                } else {
+                    modalConfirmBtn.classList.add('hidden');
+                    modalConfirmBtn.onclick = null;
+                    modalCloseBtn.textContent = "Chiudi";
+                }
+                modal.classList.remove('hidden');
+                modalBackdrop.classList.replace('opacity-0','opacity-100');
+                modalPanel.classList.remove('opacity-0','translate-y-4','sm:scale-95');
+                modalPanel.classList.add('opacity-100','translate-y-0','sm:scale-100');
+            }
+            function hideModal() {
+                modalBackdrop.classList.replace('opacity-100','opacity-0');
+                modalPanel.classList.remove('opacity-100','translate-y-0','sm:scale-100');
+                modalPanel.classList.add('opacity-0','translate-y-4','sm:scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modalConfirmBtn.classList.add('hidden');
+                    modalConfirmBtn.onclick = null;
+                    modalCloseBtn.textContent = "Chiudi";
+                }, 300);
+            }
+            modalCloseBtn.addEventListener('click', hideModal);
+            modalBackdrop.addEventListener('click', hideModal);
+
+            // ─── Canvas firme ──────────────────────────────────────────
+            function setupCanvas(canvas, ctx) {
+                const dpr = window.devicePixelRatio || 1;
+                const r   = canvas.getBoundingClientRect();
+                if (!r.width || !r.height) return;
+                canvas.width  = r.width  * dpr;
+                canvas.height = r.height * dpr;
+                ctx.scale(dpr, dpr);
+                ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+                ctx.lineCap = 'round';   ctx.lineJoin  = 'round';
+            }
+            function setupSignaturePad(canvas, ctx, clearBtn, setFlag) {
+                let drawing = false;
+                const pos = e => {
+                    const r = canvas.getBoundingClientRect();
+                    const ev = e.type.startsWith('touch') ? e.touches[0] : e;
+                    return { x: ev.clientX - r.left, y: ev.clientY - r.top };
+                };
+                canvas.addEventListener('mousedown', e => {
+                    e.preventDefault();
+                    if (drawing) { drawing = false; return; }
+                    drawing = true; setFlag(true);
+                    const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+                });
+                canvas.addEventListener('mousemove', e => {
+                    e.preventDefault(); if (!drawing) return;
+                    const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+                });
+                canvas.addEventListener('mouseout', () => drawing = false);
+                canvas.addEventListener('touchstart', e => {
+                    e.preventDefault(); drawing = true; setFlag(true);
+                    const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+                });
+                canvas.addEventListener('touchmove', e => {
+                    e.preventDefault(); if (!drawing) return;
+                    const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+                });
+                ['touchend','touchcancel'].forEach(ev => canvas.addEventListener(ev, () => drawing = false));
+                clearBtn.addEventListener('click', () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height); setFlag(false);
+                });
+            }
+            function initializeSignaturePads() {
+                if (signaturesInitialized) return;
+                const cC = document.getElementById('clientSigCanvas');
+                const iC = document.getElementById('installerSigCanvas');
+                setupCanvas(cC, cC.getContext('2d'));
+                setupCanvas(iC, iC.getContext('2d'));
+                setupSignaturePad(cC, cC.getContext('2d'), document.getElementById('clearClientSig'),    v => hasClientSigned    = v);
+                setupSignaturePad(iC, iC.getContext('2d'), document.getElementById('clearInstallerSig'), v => hasInstallerSigned = v);
+                signaturesInitialized = true;
+            }
+
+            // ─── Disclaimer → apri form ────────────────────────────────
+            acceptDisclaimerBtn.addEventListener('click', () => {
+                disclaimerModal.classList.add('hidden');
+                mainFormContainer.classList.remove('hidden');
+                mainFormContainer.style.display = 'block'; // override inline style
+                initializeSignaturePads();
+            });
+
+            // ─── Gestione immagini ─────────────────────────────────────
+            immaginiInput.addEventListener('change', e => {
+                if (!e.target.files.length) return;
+                if (uploadedFiles.length + e.target.files.length > 3) {
+                    showModal("Troppi File", "Puoi caricare un massimo di 3 immagini."); e.target.value=''; return;
+                }
+                Array.from(e.target.files).forEach(file => {
+                    uploadedFiles.push(file);
+                    const reader = new FileReader();
+                    reader.onload = ev => {
+                        const img = document.createElement('img');
+                        img.src = ev.target.result;
+                        img.className = 'w-full h-32 object-cover rounded-md shadow-md';
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+                e.target.value = '';
+            });
+            clearImagesBtn.addEventListener('click', () => {
+                uploadedFiles = []; previewContainer.innerHTML = ''; immaginiInput.value = '';
+            });
+
+            // ═══════════════════════════════════════════════════════════
+            //  GENERAZIONE PDF A4 — layout pulito su più pagine
+            // ═══════════════════════════════════════════════════════════
+            async function generatePDF(formData, imageFiles) {
+                const { jsPDF } = window.jspdf;
+
+                const urlToJpeg = src => new Promise((res, rej) => {
+                    const img = new Image(); img.crossOrigin = "Anonymous";
+                    img.onload = () => {
+                        const c = document.createElement('canvas');
+                        c.width = img.width; c.height = img.height;
+                        c.getContext('2d').drawImage(img,0,0);
+                        res(c.toDataURL('image/jpeg', 0.85));
+                    };
+                    img.onerror = rej; img.src = src;
+                });
+                const fileToB64 = file => new Promise((res,rej) => {
+                    const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej;
+                    r.readAsDataURL(file);
+                });
+                const getImgSize = b64 => new Promise(res => {
+                    const i = new Image(); i.onload = () => res({w:i.width,h:i.height}); i.src = b64;
+                });
+
+                // ── Documento A4 ──────────────────────────────────────
+                const doc  = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+                const PW   = 210;   // larghezza A4 mm
+                const PH   = 297;   // altezza  A4 mm
+                const ML   = 18;    // margine sinistro
+                const MR   = 18;    // margine destro
+                const MT   = 16;    // margine top
+                const MB   = 16;    // margine bottom
+                const CW   = PW - ML - MR;  // larghezza contenuto: 174mm
+                const FOOT = PH - MB;       // y limite inferiore
+                let y = MT;
+
+                // Palette colori
+                const BL  = [0,74,153];       // brand blue
+                const G6  = [75,85,99];       // gray-600
+                const G8  = [31,41,55];       // gray-800
+                const SEP = [209,213,219];    // separatore
+                const BGS = [245,248,255];    // sfondo sezione
+
+                // ── Utilità ───────────────────────────────────────────
+
+                // Aggiunge pagina se non c'è abbastanza spazio
+                function need(mm) {
+                    if (y + mm > FOOT) { doc.addPage(); y = MT; return true; }
+                    return false;
+                }
+
+                // Linea orizzontale
+                function rule(spaceAfter = 4) {
+                    y += 3;
+                    doc.setDrawColor(...SEP); doc.setLineWidth(0.25);
+                    doc.line(ML, y, PW-MR, y);
+                    y += spaceAfter;
+                }
+
+                // Titolo di sezione con banda colorata
+                function secHead(text) {
+                    need(14);
+                    doc.setFillColor(224, 235, 255);
+                    doc.rect(ML, y-3, CW, 9, 'F');
+                    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...BL);
+                    doc.text(text.toUpperCase(), ML+2, y+3);
+                    y += 10;
+                }
+
+                // Riga label + valore
+                function row(label, value, lw=65) {
+                    need(7);
+                    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...G6);
+                    doc.text(String(label), ML, y);
+                    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...G8);
+                    const v = String(value||'N/D');
+                    doc.text(doc.splitTextToSize(v, CW-lw)[0], ML+lw, y);
+                    y += 6.5;
+                }
+
+                // Testo wrappato
+                function wrapText(text, fs=9, color=G8, lh=5.5) {
+                    doc.setFont('helvetica','normal'); doc.setFontSize(fs); doc.setTextColor(...color);
+                    doc.splitTextToSize(String(text||''), CW).forEach(line => {
+                        need(lh+2); doc.text(line, ML, y); y += lh;
+                    });
+                }
+
+                // Numero di pagina in fondo
+                function addPageNumbers() {
+                    const total = doc.internal.getNumberOfPages();
+                    for (let i = 1; i <= total; i++) {
+                        doc.setPage(i);
+                        doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(150,150,150);
+                        doc.text(`Pagina ${i} di ${total}`, PW/2, PH-6, {align:'center'});
+                        doc.text('Cashmatic S.p.a. — Rapportino di Intervento', ML, PH-6);
+                    }
+                }
+
+                // ── PAGINA 1: Intestazione + Dati principali ──────────
+
+                // Logo
+                try {
+                    const lb = await urlToJpeg("https://media.licdn.com/dms/image/v2/D4D3DAQEsFzk-rfZ1kA/image-scale_191_1128/image-scale_191_1128/0/1659347807506/cashmatic_s_r_l__cover?e=2147483647&v=beta&t=_a54S3ocYo1yoOedGAH4ZXtO0N5wN_Do9o0NuEPR8kE");
+                    const d  = await getImgSize(lb);
+                    const lh = 16, lw = (d.w*lh)/d.h;
+                    doc.addImage(lb,'JPEG',(PW-lw)/2, y, lw, lh);
+                    y += lh + 5;
+                } catch {
+                    doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(...BL);
+                    doc.text('Cashmatic S.p.a.',PW/2,y+5,{align:'center'}); y+=12;
+                }
+
+                // Titolo
+                doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(...G8);
+                doc.text('RAPPORTINO DI INTERVENTO', PW/2, y, {align:'center'});
+                y += 8;
+                rule(5);
+
+                // ── Blocco due colonne: Manutentore | Cliente ─────────
+                const cHalf = (CW-6)/2;
+                const yBox  = y;
+                const boxH  = 36;
+
+                doc.setFillColor(...BGS);
+                doc.setDrawColor(...SEP); doc.setLineWidth(0.2);
+                doc.rect(ML,    yBox, cHalf, boxH, 'FD');
+                doc.rect(ML+cHalf+6, yBox, cHalf, boxH, 'FD');
+
+                // Intestazioni colonne
+                doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...BL);
+                doc.text('INSTALLATORE / MANUTENTORE', ML+2,   yBox+5);
+                doc.text('CLIENTE FINALE',              ML+cHalf+8, yBox+5);
+
+                const manA = [formData.get('manutentore_citta'), formData.get('manutentore_indirizzo_via')].filter(Boolean).join(', ');
+                const cliA = [formData.get('cliente_citta'),     formData.get('cliente_indirizzo_via')    ].filter(Boolean).join(', ');
+
+                const leftFields  = [['Rag. Sociale:',formData.get('manutentore_ragione_sociale')],['Indirizzo:',manA],['P. IVA:',formData.get('manutentore_piva')]];
+                const rightFields = [['Rag. Soc./Insegna:',formData.get('cliente_ragione_sociale')],['Ind. P.Vendita:',cliA],['P. IVA / CF:',formData.get('cliente_piva')]];
+
+                let yL = yBox+10, yR = yBox+10;
+                leftFields.forEach(([lbl,val]) => {
+                    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...G6);
+                    doc.text(lbl, ML+2, yL);
+                    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...G8);
+                    doc.text(doc.splitTextToSize(String(val||'N/D'), cHalf-4)[0], ML+2, yL+4);
+                    yL += 9;
+                });
+                rightFields.forEach(([lbl,val]) => {
+                    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...G6);
+                    doc.text(lbl, ML+cHalf+8, yR);
+                    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...G8);
+                    doc.text(doc.splitTextToSize(String(val||'N/D'), cHalf-4)[0], ML+cHalf+8, yR+4);
+                    yR += 9;
+                });
+
+                y = yBox + boxH + 4;
+                rule(4);
+
+                // ── Data e Orari ──────────────────────────────────────
+                const dateRaw = formData.get('data');
+                const dp      = dateRaw.split('-');
+                const fmtDate = `${dp[2]}/${dp[1]}/${dp[0]}`;
+
+                secHead('Data e Orari');
+                const timeFields = [['Data Intervento', fmtDate],['Ora Arrivo', formData.get('ora_arrivo')],['Ora Termine', formData.get('ora_termine')]];
+                const colW3 = CW/3;
+                timeFields.forEach(([lbl,val],i) => {
+                    const cx = ML + i*colW3;
+                    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...G6);
+                    doc.text(lbl, cx, y);
+                    doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(...BL);
+                    doc.text(String(val||'—'), cx, y+7);
+                });
+                y += 14;
+                rule(4);
+
+                // ── Seriali ───────────────────────────────────────────
+                secHead('Seriali Prodotti');
+                row('Seriale 1:', formData.get('seriale_1'));
+                const s2 = formData.get('seriale_2'); if(s2) row('Seriale 2:', s2);
+                const s3 = formData.get('seriale_3'); if(s3) row('Seriale 3:', s3);
+                const s4 = formData.get('seriale_4'); if(s4) row('Seriale 4:', s4);
+                const s5 = formData.get('seriale_5'); if(s5) row('Seriale 5:', s5);
+                rule(4);
+
+                // ── Tipo Intervento ───────────────────────────────────
+                secHead('Tipo Intervento');
+                const tipi = formData.getAll('tipo_intervento');
+                doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...G8);
+                doc.text(tipi.length ? tipi.join('   •   ') : 'Nessuno selezionato', ML, y);
+                y += 7;
+                rule(4);
+
+                // ── Note ──────────────────────────────────────────────
+                secHead('Note Intervento');
+                wrapText(formData.get('note') || 'Nessuna nota.', 9.5, G8, 5.5);
+                y += 3;
+                rule(4);
+
+                // ── Immagini ──────────────────────────────────────────
+                if (imageFiles.length > 0) {
+                    need(15);
+                    secHead('Immagini Allegate');
+
+                    const n    = imageFiles.length;
+                    const gap  = 4;
+                    const imgW = (CW - gap*(n-1)) / n;
+                    const imgH = imgW * 0.68;
+
+                    // Se non entrano, nuova pagina
+                    if (y + imgH > FOOT) { doc.addPage(); y = MT; }
+
+                    let ix = ML;
+                    for (let i=0; i<n; i++) {
+                        const b64 = await fileToB64(imageFiles[i]);
+                        const ext = imageFiles[i].type.includes('png') ? 'PNG' : 'JPEG';
+                        doc.setFillColor(215,215,215);
+                        doc.rect(ix, y, imgW, imgH, 'F');
+                        doc.addImage(b64, ext, ix, y, imgW, imgH, undefined, 'MEDIUM');
+                        ix += imgW + gap;
+                    }
+                    y += imgH + 5;
+                    rule(4);
+                }
+
+                // ── Disclaimer ────────────────────────────────────────
+                const DISC = "Con la sottoscrizione del presente documento/verbale di fine lavori, il Committente dichiara di aver verificato l'opera installata in ogni sua parte e di attestarne la corretta e completa esecuzione a regola d'arte, come da accordi e specifiche tecniche, sollevando l'Appaltatore da ogni responsabilità per vizi o difformità riconoscibili al momento della verifica. L'accettazione dell'opera senza riserve esonera l'Appaltatore dalla garanzia per i vizi e le difformità che erano noti al Committente o che avrebbero potuto essere facilmente riconosciuti al momento del collaudo/verifica dell'installazione. Eventuali difetti o vizi non apparenti dovranno essere denunciati per iscritto all'Appaltatore, a pena di decadenza, entro e non oltre otto giorni dalla loro scoperta.";
+                const discLines = doc.splitTextToSize(DISC, CW-4);
+                const discH     = discLines.length * 3.8 + 6;
+                need(discH + 4);
+                doc.setFillColor(250,250,250); doc.setDrawColor(...SEP); doc.setLineWidth(0.2);
+                doc.rect(ML, y-2, CW, discH, 'FD');
+                doc.setFont('helvetica','italic'); doc.setFontSize(7); doc.setTextColor(...G6);
+                discLines.forEach(line => { doc.text(line, ML+2, y+1); y += 3.8; });
+                y += 7;
+                rule(4);
+
+                // ── Firme — garantisce che stiano sulla stessa pagina ─
+                const SIG_H = 42;
+                const needH = 10 + 6 + 4 + SIG_H + 6; // titolo+nomi+label+box+padding
+                if (y + needH > FOOT) { doc.addPage(); y = MT; }
+
+                secHead('Firme');
+
+                const sw  = (CW-8)/2;
+                const sx2 = ML + sw + 8;
+
+                // Nomi
+                doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...G8);
+                doc.text(formData.get('cliente_firma_nome')   || 'N/D', ML,  y);
+                doc.text(formData.get('installer_firma_nome') || 'N/D', sx2, y);
+                y += 5;
+
+                // Etichette
+                doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...G6);
+                doc.text('Firma Cliente',                    ML,  y);
+                doc.text('Firma Installatore / Manutentore', sx2, y);
+                y += 4;
+
+                // Box firme con bordo blu
+                doc.setFillColor(239,246,255);
+                doc.setDrawColor(...BL); doc.setLineWidth(0.4);
+                doc.rect(ML,  y, sw, SIG_H, 'FD');
+                doc.rect(sx2, y, sw, SIG_H, 'FD');
+
+                // Incolla firme dai canvas
+                const cC = document.getElementById('clientSigCanvas');
+                const iC = document.getElementById('installerSigCanvas');
+                doc.addImage(cC.toDataURL('image/png'), 'PNG', ML,  y, sw, SIG_H);
+                doc.addImage(iC.toDataURL('image/png'), 'PNG', sx2, y, sw, SIG_H);
+
+                y += SIG_H + 6;
+
+                // ── Numeri di pagina ──────────────────────────────────
+                addPageNumbers();
+
+                // ── Salva ─────────────────────────────────────────────
+                const clean = s => (s||'').replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
+                const fname = `${clean(formData.get('cliente_ragione_sociale'))}_${clean(formData.get('manutentore_ragione_sociale'))}_${dp[2]}_${dp[1]}_${dp[0].substring(2)}.pdf`;
+                doc.save(fname);
+            }
+            // ═══════════════════════════════════════════════════════════
+
+            // ─── Email ─────────────────────────────────────────────────
+            function prepareEmail(fd) {
+                const cRS   = fd.get('cliente_ragione_sociale');
+                const dp    = fd.get('data').split('-');
+                const fmtD  = `${dp[2]}/${dp[1]}/${dp[0]}`;
+                const manA  = [fd.get('manutentore_citta'),fd.get('manutentore_indirizzo_via')].filter(Boolean).join(', ');
+                const cliA  = [fd.get('cliente_citta'),fd.get('cliente_indirizzo_via')].filter(Boolean).join(', ');
+
+                let body = "In allegato il rapportino di intervento (PDF).\n\n--- RIEPILOGO ---\n";
+                body += `Installatore: ${fd.get('manutentore_ragione_sociale')}\n`;
+                body += `Indirizzo Man.: ${manA||'N/D'}\n`;
+                body += `P. IVA Man.: ${fd.get('manutentore_piva')||'N/D'}\n\n`;
+                body += `Cliente: ${cRS}\n`;
+                body += `Ind. P.Vendita: ${cliA||'N/D'}\n`;
+                body += `P. IVA/CF: ${fd.get('cliente_piva')||'N/D'}\n\n`;
+                body += `Data: ${fmtD} | Arrivo: ${fd.get('ora_arrivo')} | Termine: ${fd.get('ora_termine')}\n\n`;
+                body += `Seriale 1: ${fd.get('seriale_1')}\n`;
+                const s2=fd.get('seriale_2'); if(s2) body+=`Seriale 2: ${s2}\n`;
+                const s3=fd.get('seriale_3'); if(s3) body+=`Seriale 3: ${s3}\n`;
+                const s4=fd.get('seriale_4'); if(s4) body+=`Seriale 4: ${s4}\n`;
+                const s5=fd.get('seriale_5'); if(s5) body+=`Seriale 5: ${s5}\n`;
+                body += `\nTipo: ${fd.getAll('tipo_intervento').join(', ')}\n`;
+                body += `Note: ${fd.get('note')||'Nessuna'}\n\n`;
+                body += `Cliente firmato da: ${fd.get('cliente_firma_nome')}\n`;
+                body += `Installatore firmato da: ${fd.get('installer_firma_nome')}\n`;
+                body += "\n--- FINE ---";
+
+                window.location.href = `mailto:tiziano.lanzano@cashmatic.it?subject=${encodeURIComponent('Rapportino Intervento: '+cRS+' - '+fmtD)}&body=${encodeURIComponent(body)}`;
+            }
+
+            // ─── Submit ────────────────────────────────────────────────
+            form.addEventListener('submit', async e => {
+                e.preventDefault();
+                const fd = new FormData(form);
+
+                let err = '';
+                if (!fd.get('manutentore_ragione_sociale')||!fd.get('cliente_ragione_sociale')||
+                    !fd.get('data')||!fd.get('ora_arrivo')||!fd.get('ora_termine')||!fd.get('seriale_1')) {
+                    err = "Compila tutti i campi obbligatori (Ragione Sociale, data, orari, Seriale 1).";
+                } else if (!fd.getAll('tipo_intervento').length) {
+                    err = "Seleziona almeno un tipo di intervento.";
+                } else if (!fd.get('cliente_firma_nome')||!fd.get('installer_firma_nome')) {
+                    err = "Compila i campi Nome e Cognome in entrambe le sezioni firma.";
+                } else if (!hasClientSigned)    { err = "Manca la firma del cliente.";
+                } else if (!hasInstallerSigned) { err = "Manca la firma dell'installatore.";
+                } else if (!uploadedFiles.length)  { err = "Devi allegare almeno 1 immagine.";
+                } else if (uploadedFiles.length>3) { err = "Puoi allegare massimo 3 immagini."; }
+
+                if (err) { showModal("Dati Mancanti", err); return; }
+
+                showModal("Report Pronto",
+                    "Il rapportino è valido.\nClicca qui sotto per scaricare il PDF e preparare l'email.",
+                    false,
+                    {
+                        text: "DOWNLOAD PDF + PREPARA EMAIL",
+                        action: async () => {
+                            try { await generatePDF(fd, uploadedFiles); }
+                            catch(ex) {
+                                console.error(ex);
+                                showModal("Errore Generazione PDF", "Impossibile generare il PDF. Controlla la console.");
+                                return;
+                            }
+                            prepareEmail(fd);
+                        }
+                    }
+                );
+            });
+
+        }); // DOMContentLoaded
+    </script>
+</body>
+</html>
